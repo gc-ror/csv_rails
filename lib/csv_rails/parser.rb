@@ -50,7 +50,7 @@ module CsvRails
                   end
         end
 
-        csv = CSV.parse(input, headers: true)
+        csv = CSV.parse(input, headers: true, skip_blanks: true)
         map = fields.map { |field| [human_attribute_name(field), field] }.select { |from, _to| csv.headers.include? from }
         uploaded_fields = map.map(&:last).to_set
         raise FormatInvalid unless required_fields.all? { |field| uploaded_fields.include? field }
