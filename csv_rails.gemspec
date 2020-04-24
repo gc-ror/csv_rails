@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = 'CSV Converter for Rails'
   spec.description = 'CSV Converter for Rails'
-  spec.homepage = 'https://gc-stoyr.com'
+  spec.homepage = 'https://gc-story.com'
   spec.license = 'MIT'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.3.0')
 
