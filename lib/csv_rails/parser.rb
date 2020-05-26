@@ -39,7 +39,7 @@ module CsvRails
       #
       # @return [Array<Hash>] 読み取ったフィアルのハッシュの配列(ブロックが指定されていない場合)
       #
-      def parse_csv(input, fields:, encoding: 'Windows-31J', required_fields: [])
+      def parse_csv(input, fields:, encoding: 'Windows-31J', required_fields: [], extended_fields: [])
         if input.respond_to? :read
           input = if input.is_a? ActionDispatch::Http::UploadedFile
                     input = input.read
@@ -52,11 +52,23 @@ module CsvRails
 
         csv = CSV.parse(input, headers: true, skip_blanks: true)
         map = fields.map { |field| [human_attribute_name(field), field] }.select { |from, _to| csv.headers.include? from }
+        map2 = extended_fields.select { |name, _attr, _key| csv.headers.include? name }
         uploaded_fields = map.map(&:last).to_set
         raise FormatInvalid unless required_fields.all? { |field| uploaded_fields.include? field }
 
         results = csv.map do |row|
-          map.map { |from, to| [to, row[from]] }.to_h
+          [
+            map.map do |from, to|
+              [to, row[from]]
+            end,
+            map2.map do |name, attr, key|
+              [attr, key, row[name]]
+            end.group_by do |attr, _key, _value|
+              attr
+            end.map do |attr, values|
+              [attr, values.map { |_attr, key, value| [key, value] }.to_h]
+            end
+          ].inject(&:concat).to_h
         end
 
         if block_given?
