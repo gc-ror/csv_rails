@@ -38,7 +38,7 @@ module CsvRails
                 else
                   headers = [
                     (fields.map { |field| object.send field } if fields.present?),
-                    (extended_fields.map { |_name, attr, key| object.send(attr)[key] } if extended_fields.present?)
+                    (extended_fields.map { |_name, attr, key| object.send(attr)&.[](key) } if extended_fields.present?)
                   ].compact.reduce(&:concat)
                 end
           csv << row
